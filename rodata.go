@@ -16,3 +16,7 @@ func RODATA() error {
 	defer rodata.Close()
 	return nil
 }
+
+r1 = map? FD() from map
+r2 = element
+FnMapLookupElem.Call()
