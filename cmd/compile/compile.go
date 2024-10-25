@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"go/ast"
@@ -8,6 +9,15 @@ import (
 	"go/token"
 	"log"
 )
+
+//go:embed *.tmpl
+var tmplfs embed.FS
+
+/*
+ if tmpl, err = tmpl.ParseFS(fs, path.Join(cmdline.Pkg(reflect.TypeOf(m)), file)); err != nil {
+                        log.Fatalf("Failed to generate manual page: %s", err)
+                }
+*/
 
 func main() {
 	flag.Parse()
