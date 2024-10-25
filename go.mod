@@ -1,4 +1,4 @@
-module github.com/miekg/ebpf
+module github.com/miekg/bpf
 
 go 1.23.2
 
