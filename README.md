@@ -60,8 +60,13 @@ it might make sense to generate the whole program via some `bpf` comment tags or
 
 ## TODO
 
-- constants on the stack
+- everything
 - generate complete program, looks like a lot of boiler plate
+
+Currently working on:
+
+- simple hello world with bpf_printk, this requires constants in a rodata eBPF map and all the code
+    generation that entails.
 
 ## Stuff of interest
 
