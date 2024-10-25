@@ -56,6 +56,7 @@ func main() {
 			if fn, ok := member.(*ssa.Function); ok {
 				b.Reset()
 				fmt.Printf("Function %s SSA:\n", fn.Name())
+				fmt.Printf("+%v\n", fn)
 				ssa.WriteFunction(b, fn)
 				fmt.Printf("%s\n", b)
 			}
