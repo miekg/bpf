@@ -19,6 +19,8 @@ var tmplfs embed.FS
                 }
 */
 
+var fOut = flag.String("out", "", "file name to generate")
+
 func main() {
 	flag.Parse()
 
