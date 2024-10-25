@@ -1,12 +1,14 @@
-# eBPF in *pure* Go
+# (e)BPF in *pure* Go
 
 > eBPF in C? What am I, a farmer?
 
 The eBPF ecosystem heavily depends on clang/llvm to compile (C) source code into object code that
 can be loaded by the kernel. The goal here is to get rid of clang/llvm and use pure Go.
 
-The benefit of this approach is that you can use _all_ the Go development tooling for writing a eBPF
+The benefit of this approach is that you can use _all_ the Go development tooling for writing an eBPF
 program. Cilium has been doing _a lot_ of work in this space.
+
+This package is `bpf` all Cilium stuff is `ebpf`.
 
 When using eBPF you can also talk with it via FDs and eBPF maps, this means the non-eBPF bit of your
 code also lives somewhere. Taking this all into account I've finally settled on the following
