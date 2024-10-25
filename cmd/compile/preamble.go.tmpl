@@ -1,0 +1,7 @@
+package main
+
+var ctx = context.New()
+
+{{- range .BasicLits }}
+	ctx.ROdata.Put({{(printf "%s" .Key)}}, {{.Value}})
+{{end -}}

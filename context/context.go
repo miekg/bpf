@@ -1,4 +1,4 @@
-package bpf
+package context
 
 import "github.com/cilium/ebpf"
 
