@@ -7,23 +7,31 @@ import (
 	"github.com/cilium/ebpf"
 )
 
-// Context is an BPF context, it holds (global) data that each bpf Go program needs to access while running.
-// Context is both used when assembling the program and when generating the Go code.
+// Context is an BPF context, it holds (global) data that each bpf Go program needs to access while running. It is used
+// when parsing a Go program and then generating the new ebpf program.
 type Context struct {
-	ROdata    *ebpf.Map       // RO is a map that holds the .rodata for a eBPF program, used when generating.
+	ROdata *ebpf.Map // RO is a map that holds the .rodata for a eBPF program, used when generating.
+
 	Constants []*ast.BasicLit // Constants holds all the constants.
 	Insns     []string        // Insns are the assembly instruction in Go syntax.
 }
 
 // New returns a new context.
 func New() *Context {
-	c := &Context{Insns: []string{}}
-
+	c := &Context{}
 	rodata, _ := ebpf.NewMap(&ebpf.MapSpec{
-		Type: ebpf.Array,
-		Name: "rodata",
+		Type:       ebpf.Array,
+		KeySize:    8,
+		ValueSize:  8,
+		MaxEntries: 2,
+		Name:       "rodata",
 	})
 	c.ROdata = rodata
+	c.Insns = []string{
+		// set the error code for the ebpf to zero, in reverse order because we slices.Reverse this (TODO(xxx))
+		`asm.Return()`,
+		`asm.Mov.Imm(asm.R0, 0)`,
+	}
 	return c
 }
 
@@ -35,7 +43,7 @@ func (ctx *Context) AddIns(ins string) { ctx.Insns = append(ctx.Insns, ins) }
 // AddConstant adds a constant to the context, it returns the index of the element so the caller can use that as a reference.
 func (ctx *Context) AddConstant(basicLit *ast.BasicLit) string {
 	ctx.Constants = append(ctx.Constants, basicLit)
-	return strconv.FormatUint(uint64(len(ctx.Constants)), 10)
+	return strconv.FormatUint(uint64(len(ctx.Constants)-1), 10) // zero based, hence -1
 }
 
 // Visitor function to traverse AST and generate code
@@ -72,7 +80,7 @@ func (ctx *Context) genCallExpr(callExpr *ast.CallExpr) {
 func (ctx *Context) genFuncDecl(funcDecl *ast.FuncDecl) {
 	// check for builtins, or there others??
 	// check package??
-	println(funcDecl.Name.Name)
+	// println(funcDecl.Name.Name)
 
 	/*
 		asm.LoadMapPtr(asm.R2, events.FD()), // file descriptor of the perf event array
@@ -92,5 +100,5 @@ func (ctx *Context) genAssignStmt(assignStmt *ast.AssignStmt) {}
 
 func (ctx *Context) genBasicLit(basicLit *ast.BasicLit) {
 	index := ctx.AddConstant(basicLit) // order in generated program will be the same
-	ctx.AddIns(`asm.LoadMapValue(asm.R1, cxt.FD(), ` + index + `)`)
+	ctx.AddIns(`asm.LoadMapValue(asm.R1, ctx.FD(), ` + index + `)`)
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"embed"
+	"bytes"
 	"flag"
 	"fmt"
 	"go/ast"
@@ -9,18 +9,10 @@ import (
 	"go/token"
 	"log"
 	"slices"
+	"text/template"
 
 	"github.com/miekg/bpf"
 )
-
-//go:embed *.tmpl
-var tmplfs embed.FS
-
-/*
- if tmpl, err = tmpl.ParseFS(fs, path.Join(cmdline.Pkg(reflect.TypeOf(m)), file)); err != nil {
-                        log.Fatalf("Failed to generate manual page: %s", err)
-                }
-*/
 
 var fOut = flag.String("out", "", "file name to generate")
 
@@ -33,14 +25,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ast.Print(fset, prog)
-
 	ctx := bpf.New()
 	ast.Walk(ctx, prog)
 
-	println(len(ctx.Insns))
 	slices.Reverse(ctx.Insns) // somewhat naive... ?
-	for _, s := range ctx.Insns {
-		fmt.Println(s)
+	tmpl, err := template.New("out").Parse(out)
+	if err != nil {
+		log.Fatal(err)
 	}
+	buf := &bytes.Buffer{}
+
+	if err := tmpl.Execute(buf, ctx); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s\n", buf)
 }
