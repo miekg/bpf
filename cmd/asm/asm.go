@@ -9,7 +9,7 @@ import (
 	"go/token"
 	"log"
 
-	"github.com/miekg/bpf/context"
+	"github.com/miekg/bpf"
 )
 
 //go:embed *.tmpl
@@ -41,6 +41,10 @@ func main() {
 	})
 	ast.Print(fset, prog)
 
-	ctx := context.New()
+	ctx := bpf.New()
 	ast.Walk(ctx, prog)
+
+	for _, s := range ctx.Insns {
+		fmt.Println(s)
+	}
 }

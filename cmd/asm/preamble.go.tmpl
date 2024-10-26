@@ -3,6 +3,6 @@ package main
 
 var ctx = context.New()
 
-{{- range .BasicLits }}
+{{- range .Constants }}
 	ctx.ROdata.Put({{(printf "%s" .Key)}}, {{.Value}})
 {{end -}}
