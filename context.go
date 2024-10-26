@@ -107,5 +107,12 @@ func (ctx *Context) genAssignStmt(assignStmt *ast.AssignStmt) {}
 
 func (ctx *Context) genBasicLit(basicLit *ast.BasicLit) {
 	index := ctx.AddConstant(basicLit) // order in generated program will be the same
+	// use helper to lookup element, will be stored in R0, move to R1
+	//	R1 = ctx.FD()
+	//      R2 = index
+	//	FnMapLookupElem.Call()
+	//      Move RO, to R1 for the next function call
+
+	// this is wrong,
 	ctx.AddIns(`asm.LoadMapValue(asm.R1, ctx.FD(), ` + index + `)`)
 }
