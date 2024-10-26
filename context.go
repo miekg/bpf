@@ -31,6 +31,8 @@ func New() *Context {
 func (ctx *Context) Map() {
 	rodata, err := ebpf.NewMap(&ebpf.MapSpec{
 		Type:       ebpf.Array,
+		KeySize:    4,
+		ValueSize:  8,
 		Name:       "rodata",
 		MaxEntries: 10,
 	})
