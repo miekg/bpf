@@ -8,6 +8,8 @@ import (
 	"go/parser"
 	"go/token"
 	"log"
+
+	"github.com/miekg/bpf/context"
 )
 
 //go:embed *.tmpl
@@ -38,4 +40,7 @@ func main() {
 		return true
 	})
 	ast.Print(fset, prog)
+
+	ctx := context.New()
+	ast.Walk(ctx, prog)
 }
