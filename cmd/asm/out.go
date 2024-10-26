@@ -43,6 +43,7 @@ func main() {
 }
 
 func setupROMap() {
+	ctx.Map()
 	{{- range $i,$v := .Constants }}
 	ctx.ROdata.Put({{$i}}, {{$v.Value}})
 	{{end}}

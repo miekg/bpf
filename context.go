@@ -2,6 +2,7 @@ package bpf
 
 import (
 	"go/ast"
+	"log"
 	"strconv"
 
 	"github.com/cilium/ebpf"
@@ -19,20 +20,24 @@ type Context struct {
 // New returns a new context.
 func New() *Context {
 	c := &Context{}
-	rodata, _ := ebpf.NewMap(&ebpf.MapSpec{
-		Type:       ebpf.Array,
-		KeySize:    8,
-		ValueSize:  8,
-		MaxEntries: 2,
-		Name:       "rodata",
-	})
-	c.ROdata = rodata
 	c.Insns = []string{
 		// set the error code for the ebpf to zero, in reverse order because we slices.Reverse this (TODO(xxx))
 		`asm.Return()`,
 		`asm.Mov.Imm(asm.R0, 0)`,
 	}
 	return c
+}
+
+func (ctx *Context) Map() {
+	rodata, err := ebpf.NewMap(&ebpf.MapSpec{
+		Type:       ebpf.Array,
+		Name:       "rodata",
+		MaxEntries: 10,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx.ROdata = rodata
 }
 
 // FD returns the fd of the rodata map.
