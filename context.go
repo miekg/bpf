@@ -1,7 +1,5 @@
 package bpf
 
-import "C"
-
 import (
 	"go/ast"
 	"strconv"
@@ -32,9 +30,7 @@ func New() *Context {
 // FD returns the fd of the rodata map.
 func (ctx *Context) FD() int { return ctx.ROdata.FD() }
 
-func (ctx *Context) AddIns(ins string) {
-	ctx.Insns = append(ctx.Insns, ins)
-}
+func (ctx *Context) AddIns(ins string) { ctx.Insns = append(ctx.Insns, ins) }
 
 // AddConstant adds a constant to the context, it returns the index of the element so the caller can use that as a reference.
 func (ctx *Context) AddConstant(basicLit *ast.BasicLit) string {
@@ -48,25 +44,35 @@ func (ctx *Context) Visit(node ast.Node) ast.Visitor {
 		return nil
 	}
 	switch n := node.(type) {
-	case *ast.FuncDecl:
-		ctx.genFuncDecl(n)
+	case *ast.ImportSpec: // skip any imports
+		return nil
 	case *ast.IfStmt:
 		ctx.genIfStmt(n)
 	case *ast.AssignStmt:
 		ctx.genAssignStmt(n)
+	case *ast.FuncDecl:
+		ctx.genFuncDecl(n)
+	case *ast.CallExpr:
+		ctx.genCallExpr(n)
 	case *ast.BasicLit:
 		ctx.genBasicLit(n)
 	}
 	return ctx
 }
 
+func (ctx *Context) genCallExpr(callExpr *ast.CallExpr) {
+	if fun, ok := callExpr.Fun.(*ast.SelectorExpr); ok {
+		switch fun.Sel.Name {
+		case "TracePrintk":
+			ctx.AddIns(`asm.FnTracePrintk.Call()`)
+		}
+	}
+}
+
 func (ctx *Context) genFuncDecl(funcDecl *ast.FuncDecl) {
 	// check for builtins, or there others??
 	// check package??
-	switch funcDecl.Name.Name {
-	case "TracePrintk":
-		ctx.AddIns(`asm.FnTracePrintk.Call()`)
-	}
+	println(funcDecl.Name.Name)
 
 	/*
 		asm.LoadMapPtr(asm.R2, events.FD()), // file descriptor of the perf event array

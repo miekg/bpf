@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"log"
+	"slices"
 
 	"github.com/miekg/bpf"
 )
@@ -32,18 +33,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ast.Inspect(prog, func(n ast.Node) bool {
-		funcCall, ok := n.(*ast.CallExpr)
-		if ok {
-			fmt.Println(funcCall.Fun)
-		}
-		return true
-	})
 	ast.Print(fset, prog)
 
 	ctx := bpf.New()
 	ast.Walk(ctx, prog)
 
+	println(len(ctx.Insns))
+	slices.Reverse(ctx.Insns) // somewhat naive... ?
 	for _, s := range ctx.Insns {
 		fmt.Println(s)
 	}
