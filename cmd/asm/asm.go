@@ -8,7 +8,6 @@ import (
 	"go/parser"
 	"go/token"
 	"log"
-	"slices"
 	"text/template"
 
 	"github.com/miekg/bpf"
@@ -28,7 +27,6 @@ func main() {
 	ctx := bpf.New()
 	ast.Walk(ctx, prog)
 
-	slices.Reverse(ctx.Insns) // somewhat naive... ?
 	tmpl, err := template.New("out").Parse(out)
 	if err != nil {
 		log.Fatal(err)
