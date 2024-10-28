@@ -58,6 +58,7 @@ func setupProg() {
 		asm.FnMapLookupElem.Call(),
 
 		asm.Mov.Reg(asm.R1, asm.R0),
+		asm.LoadImm(asm.R2, 12, asm.DWord),
 		asm.FnTracePrintk.Call(),
 
 		asm.Mov.Imm(asm.R0, 0),
